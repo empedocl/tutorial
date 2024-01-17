@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+
+<body>
+
+    <h1>Dashboard</h1>
+
+    <div class="button-container">
+        <button id="button1">Bottone 1</button>
+        <button id="button2">Bottone 2</button>
+    </div>
+
+    <div class="button-container">
+        <button id="button3">Bottone 3</button>
+        <button id="button4">Bottone 4</button>
+    </div>
+
+    <button id="toggleCameraButton">Attiva/Disattiva Fotocamera</button>
+    <button id="capturePhotoButton">Scatta Foto</button>
+
+    <script>
+        let videoStream;
+        let videoElement;
+
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    videoStream = stream;
+                    videoElement = document.createElement('video');
+                    videoElement.srcObject = stream;
+                    videoElement.autoplay = true;
+                    document.body.appendChild(videoElement);
+                })
+                .catch(function (error) {
+                    console.log("Errore nell'accesso alla fotocamera: ", error);
+                });
+        }
+
+        function stopCamera() {
+            if (videoStream) {
+                const videoTracks = videoStream.getVideoTracks();
+                videoTracks.forEach(track => track.stop());
+                document.body.removeChild(videoElement);
+                videoStream = null;
+            }
+        }
+
+        function capturePhoto() {
+            if (videoStream) {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
+                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                const dataURL = canvas.toDataURL('image/png');
+                       // Crea un elemento "a" per il download
+                const downloadLink = document.createElement('a');
+                downloadLink.href = dataURL;
+                downloadLink.download = 'foto_catturata.png'; // Specifica il nome del file
+
+                // Aggiungi il link al corpo del documento e fai clic su di esso per avviare il download
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            }
+        }
+
+        document.getElementById('toggleCameraButton').addEventListener('click', function () {
+            if (videoStream) {
+                stopCamera();
+            } else {
+                startCamera();
+            }
+        });
+
+        document.getElementById('capturePhotoButton').addEventListener('click', capturePhoto);
+
+        // Avvia la fotocamera all'avvio della pagina
+        startCamera();
+    </script>
+        
+    <style>
+        /* Stili CSS rimasti invariati */
+               body{
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+          footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px; /* Questo applica il padding a tutti e quattro i lati */
+            position: fixed;
+            border-radius: 5px;
+            bottom: 0;
+            width: 97.5%;
+        }
+              body {
+            text-align: center;
+           
+        }
+
+        button {
+            margin: 10px;
+            border: none; /* Rimuovi il bordo predefinito */
+            padding: 10px 20px; /* Aggiungi spaziatura interna ai pulsanti */
+            border-radius: 15px; /* Rendi i pulsanti arrotondati */
+            background-color: red; /* Colore di sfondo rosso */
+            color: #fff; /* Colore del testo bianco */
+            cursor: pointer;
+            /* Altri stili dei pulsanti, se necessario */
+        }
+
+        /* Altri stili per la pagina dashboard.html */
+    </style>
+
+    <div>
+        <footer>
+            <p>&copy; 2024 Il Tuo Nome. Tutti i diritti riservati.</p>
+        </footer>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+
+</html>
